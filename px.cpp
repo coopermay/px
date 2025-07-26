@@ -3,19 +3,20 @@
 #include <ctime>
 #include <cmath>
 #include <vector>
+#include <chrono>
+#include <thread>
+
 using namespace std;
-
-void penis() {
-    cout << "penis";
-};
-
-int sum(int a, int b) {
-    return a + b;
-};
 
 class minecraftCoords {
     pair<int, pair<int, int>> coords = {};
     public:
+        bool operator==(const minecraftCoords& other) const {
+        return coords == other.coords;
+    }
+    bool operator!=(const minecraftCoords& other) const {
+        return !(*this == other);
+    }
         void setCoords(int x, int y, int z) {
             coords.first = x;
             coords.second.first = y;
@@ -28,15 +29,21 @@ class minecraftCoords {
             return coords;
         }
         pair<int, pair<int,int>> changeX(int change) {
+            if ((coords.first + change > -30) && (coords.first + change < 30)) {
             coords.first = coords.first + change;
+            }
             return coords;
         };
         pair<int, pair<int,int>> changeY(int change) {
+            if ((coords.second.first + change > -30) && (coords.second.first + change < 30)) {
             coords.second.first = coords.second.first + change;
+            }
             return coords;
         };
         pair<int, pair<int,int>> changeZ(int change) {
+            if ((coords.second.second + change > -30) && (coords.second.second + change < 30)) {
             coords.second.second = coords.second.second + change;
+            }
             return coords;
         };
 
@@ -63,6 +70,7 @@ class minecraftCoords {
     return (abs(x1 - x2) <= 1) && (abs(y1 - y2) <= 1) && (abs(z1 - z2) <= 1);
 }
 
+
     void startGame() {
         minecraftCoords myCoords;
         myCoords.setCoords(0, 0, 0);
@@ -88,7 +96,7 @@ class minecraftCoords {
         double score;
         while (true) {
             cin >> input;
-            counter += 1;
+            minecraftCoords beforeCoords = myCoords;
             if (input == 'w') {
                 myCoords.changeX(1);   
                 myCoords.printCoords();
@@ -115,6 +123,9 @@ class minecraftCoords {
             }
             if (input == 'x') {
                 break;
+            }
+            if (beforeCoords != myCoords) {
+                counter += 1;
             }
             for (auto bomb : bombs) {
                 if (myCoords.isInKillZone(bomb)) {
@@ -164,6 +175,7 @@ class minecraftCoords {
                 cout << "SUPER FUCKING HOT" << endl;
                 cout << "Distance: " << myCoords.distanceTo(treasureCoords) << endl;
             }
+            cout << counter << endl;
         }
     };
 };
