@@ -76,7 +76,7 @@ class minecraftCoords {
         myCoords.setCoords(0, 0, 0);
         myCoords.printCoords();
         char input;
-        int numBombs = 5 + (rand() % 20);
+        int numBombs = 5 + (rand() % 21);
         vector<pair<int, pair<int, int>>> bombs;
         for (int i = 0; i < numBombs; i++) {
             int bombX = -25 + (rand() % 51);
@@ -156,7 +156,7 @@ class minecraftCoords {
             else if (d >= 33 && d <= 40) {
                 cout << "getting a bit chilly" << endl;
             }
-            else if (d >= 22 && d <= 32) {
+            else if (d >= 22 && d <= 33) {
                 cout << "room temp" << endl;
             }
             else if (d >= 15 && d <= 22) {
@@ -175,7 +175,6 @@ class minecraftCoords {
                 cout << "SUPER FUCKING HOT" << endl;
                 cout << "Distance: " << myCoords.distanceTo(treasureCoords) << endl;
             }
-            cout << counter << endl;
         }
     };
 };
