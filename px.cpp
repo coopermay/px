@@ -5,6 +5,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <fstream>
 
 using namespace std;
 
@@ -76,6 +77,7 @@ class minecraftCoords {
         myCoords.setCoords(0, 0, 0);
         myCoords.printCoords();
         char input;
+        vector<pair<int, pair<int,int>>> path;
         int numBombs = 5 + (rand() % 21);
         vector<pair<int, pair<int, int>>> bombs;
         for (int i = 0; i < numBombs; i++) {
@@ -84,6 +86,11 @@ class minecraftCoords {
             int bombZ = -25 + (rand() % 51);
             bombs.push_back({bombX, {bombY, bombZ}});
         }
+        ofstream bombFile("bombs.txt");
+        for (const auto& b : bombs) {
+            bombFile << b.first << " " << b.second.first << " " << b.second.second << endl;
+        }
+        bombFile.close();
         int treasureX = -25 + (rand() % 51);
         int treasureY = -25 + (rand() % 51);
         int treasureZ = -25 + (rand() % 51);
@@ -91,6 +98,9 @@ class minecraftCoords {
         treasureCoords.first = treasureX;
         treasureCoords.second.first = treasureY;
         treasureCoords.second.second = treasureZ;
+        ofstream treasureFile("treasure.txt");
+        treasureFile << treasureCoords.first << " " << treasureCoords.second.first << " " << treasureCoords.second.second << endl;
+        treasureFile.close();
         double startingDistance = myCoords.distanceTo(treasureCoords);
         double counter = 0;
         double score;
@@ -122,22 +132,23 @@ class minecraftCoords {
                 myCoords.printCoords();
             }
             if (input == 'x') {
-                break;
+                goto end;
             }
             if (beforeCoords != myCoords) {
                 counter += 1;
+                path.push_back(myCoords.getCoords());
             }
             for (auto bomb : bombs) {
                 if (myCoords.isInKillZone(bomb)) {
                     cout << "BOOM! You entered the kill zone. Game over." << endl;
-                    return;
+                    goto end;
                 }
         }
             if (myCoords.getCoords() == treasureCoords) {
                 cout << "Treasure found, you win!" << endl;
                 score = counter / startingDistance;
                 cout << "Score: " << score << endl;
-                break;
+                goto end;
             }
             cout << "Thermometer: ";
             double d = myCoords.distanceTo(treasureCoords);
@@ -176,6 +187,13 @@ class minecraftCoords {
                 cout << "Distance: " << myCoords.distanceTo(treasureCoords) << endl;
             }
         }
+        end:
+        ofstream outFile("path_data.txt");
+        for (const auto& p : path) {
+            outFile << p.first << " " << p.second.first << " " << p.second.second << endl;
+        }
+        outFile.close();
+        system("python visual.py");
     };
 };
 
