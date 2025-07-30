@@ -78,7 +78,7 @@ class minecraftCoords {
         myCoords.printCoords();
         char input;
         vector<pair<int, pair<int,int>>> path;
-        int numBombs = 5 + (rand() % 21);
+        int numBombs = 10 + (rand() % 31);
         vector<pair<int, pair<int, int>>> bombs;
         for (int i = 0; i < numBombs; i++) {
             int bombX = -25 + (rand() % 51);
