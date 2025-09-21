@@ -153,7 +153,7 @@ class minecraftCoords {
             cout << "Thermometer: ";
             double d = myCoords.distanceTo(treasureCoords);
             if (d >= 86){
-                cout << "freezing fucking cold" << endl;
+                cout << "freezing effing cold" << endl;
             }
             else if (d >= 75 && d <= 86) {
                 cout << "iceberg" << endl;
@@ -183,7 +183,7 @@ class minecraftCoords {
                 cout << "FLAMING HOT" << endl;
             }
             else if (d >= 1 && d <= 3) {
-                cout << "SUPER FUCKING HOT" << endl;
+                cout << "SUPER EFFING HOT" << endl;
                 cout << "Distance: " << myCoords.distanceTo(treasureCoords) << endl;
             }
         }
