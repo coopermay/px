@@ -202,6 +202,16 @@ class minecraftCoords {
 int main() {
     srand(time(0));
     minecraftCoords myCoords;
+    cout << " *** Welcome to Terminal Treasure Hunter *** \n";
+    cout << "GOAL: Navigate to the treasure and avoid bombs\n";
+    cout << "MOVEMENT:\n";
+    cout << " 'W' increases x value\n";
+    cout << " 'S' decreases x value\n"; 
+    cout << " 'S' decreases z value\n";
+    cout << " 'D' increases z value\n";
+    cout << " '-' increases y value\n";
+    cout << " 'C' decreases y value\n";
+    cout << "Enter your moves individually or combined!\nGO!\n";
     myCoords.startGame();
     return 0;
 }
