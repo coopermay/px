@@ -19,8 +19,8 @@ A 3D treasure hunt played in the terminal, written in C++17. Navigate a 3D grid 
 Requirements: a C++17 compiler (clang++ or g++), `make`, and Python 3.
 
 ```bash
-git clone https://github.com/coopermay/px.git
-cd px
+git clone https://github.com/coopermay/terminal-treasure-hunter.git
+cd terminal-treasure-hunter
 pip3 install -r requirements.txt
 make run
 ```
