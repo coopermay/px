@@ -27,6 +27,12 @@ make run
 
 Run the game from the repository folder so it can find `visual.py` for the replay.
 
+Each game prints its map seed. To play the same map again, pass that seed:
+
+```bash
+./px --seed 12345
+```
+
 ## Controls
 
 | Key | Action |
@@ -40,13 +46,21 @@ Press Enter after each move, or type several moves at once (for example `wwwdd`)
 
 ## How it works
 
-- **Game (`px.cpp`):** The treasure is placed at random at least 10 moves from the start. Bombs are then placed so that none of them is within 3 cells of the start or the treasure. After each move, the game checks whether you're in any bomb's kill zone (Chebyshev distance ≤ 1) and reports your distance to the treasure as a thermometer reading. Efficiency is `shortest path / your moves`, where the shortest path is the Manhattan distance from the start to the treasure.
+- **World generation (`src/world.cpp`):** A `std::mt19937` generator, seeded from the command line or `std::random_device`, places the treasure at least 10 moves from the start. Bombs are then placed so that none of them is within 3 cells of the start or the treasure, so every map is winnable.
+- **Game loop (`src/game.cpp`):** `Game::handleKey` applies one key press and returns the outcome (still playing, won, exploded, or quit) without doing any input or output, so the rules can be tested on their own. `Game::run` handles the terminal side: after each move it checks whether you're in any bomb's kill zone (Chebyshev distance ≤ 1) and reports your distance to the treasure as a thermometer reading. Efficiency is `shortest path / your moves`, where the shortest path is the Manhattan distance from the start to the treasure.
 - **Replay (`visual.py`):** At the end of every game, the C++ program writes the bomb positions, the treasure position, and your full path to text files, then launches the Python script. The script animates your path in 3D, drawing the game's y axis vertically.
 
 ## Project structure
 
 ```
-px.cpp            game logic, input handling, world generation
+include/
+  vec3.h          Vec3 point type and distance functions
+  config.h        world size, bomb counts, and other tuning constants
+  world.h         World: treasure and bomb placement
+  player.h        Player: position, path, and bounded movement
+  game.h          Game: key handling and the terminal game loop
+  replay.h        saving replay data and launching the visualizer
+src/              implementations, plus main.cpp (argument parsing and startup)
 visual.py         3D replay of the last game (matplotlib)
 Makefile          build and run targets
 requirements.txt  Python dependencies
