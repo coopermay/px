@@ -6,6 +6,9 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
+#include <cctype>
+#include <algorithm>
+#include <iomanip>
 
 using namespace std;
 
@@ -71,41 +74,64 @@ class minecraftCoords {
     return (abs(x1 - x2) <= 1) && (abs(y1 - y2) <= 1) && (abs(z1 - z2) <= 1);
 }
 
+    // largest distance along any single axis (the kill zone is a 3x3x3 cube, i.e. chebyshev distance <= 1)
+    static int chebyshevDistance(pair<int, pair<int, int>> a, pair<int, pair<int, int>> b) {
+        return max({abs(a.first - b.first), abs(a.second.first - b.second.first), abs(a.second.second - b.second.second)});
+    }
+
+    // fewest moves between two points, since each move changes one axis by 1
+    static int manhattanDistance(pair<int, pair<int, int>> a, pair<int, pair<int, int>> b) {
+        return abs(a.first - b.first) + abs(a.second.first - b.second.first) + abs(a.second.second - b.second.second);
+    }
+
 
     void startGame() {
         minecraftCoords myCoords;
         myCoords.setCoords(0, 0, 0);
         myCoords.printCoords();
         char input;
+        pair<int, pair<int, int>> startCoords = myCoords.getCoords();
         vector<pair<int, pair<int,int>>> path;
+        path.push_back(startCoords);
+
+        // place the treasure first, far enough away that the game isn't trivial
+        pair<int, pair<int, int>> treasureCoords = {};
+        do {
+            int treasureX = -25 + (rand() % 51);
+            int treasureY = -25 + (rand() % 51);
+            int treasureZ = -25 + (rand() % 51);
+            treasureCoords = {treasureX, {treasureY, treasureZ}};
+        } while (manhattanDistance(startCoords, treasureCoords) < 10);
+        ofstream treasureFile("treasure.txt");
+        treasureFile << treasureCoords.first << " " << treasureCoords.second.first << " " << treasureCoords.second.second << endl;
+        treasureFile.close();
+
+        // keep bombs at least 3 away from the start and the treasure, so the first move
+        // and the final approach to the treasure are always safe
         int numBombs = 10 + (rand() % 31);
         vector<pair<int, pair<int, int>>> bombs;
-        for (int i = 0; i < numBombs; i++) {
+        while ((int)bombs.size() < numBombs) {
             int bombX = -25 + (rand() % 51);
             int bombY = -25 + (rand() % 51);
             int bombZ = -25 + (rand() % 51);
-            bombs.push_back({bombX, {bombY, bombZ}});
+            pair<int, pair<int, int>> bomb = {bombX, {bombY, bombZ}};
+            if (chebyshevDistance(bomb, startCoords) >= 3 && chebyshevDistance(bomb, treasureCoords) >= 3) {
+                bombs.push_back(bomb);
+            }
         }
         ofstream bombFile("bombs.txt");
         for (const auto& b : bombs) {
             bombFile << b.first << " " << b.second.first << " " << b.second.second << endl;
         }
         bombFile.close();
-        int treasureX = -25 + (rand() % 51);
-        int treasureY = -25 + (rand() % 51);
-        int treasureZ = -25 + (rand() % 51);
-        pair<int, pair<int, int>> treasureCoords = {};
-        treasureCoords.first = treasureX;
-        treasureCoords.second.first = treasureY;
-        treasureCoords.second.second = treasureZ;
-        ofstream treasureFile("treasure.txt");
-        treasureFile << treasureCoords.first << " " << treasureCoords.second.first << " " << treasureCoords.second.second << endl;
-        treasureFile.close();
-        double startingDistance = myCoords.distanceTo(treasureCoords);
-        double counter = 0;
-        double score;
+
+        int shortestPath = manhattanDistance(startCoords, treasureCoords);
+        int moves = 0;
         while (true) {
-            cin >> input;
+            if (!(cin >> input)) {
+                break;
+            }
+            input = (char)tolower((unsigned char)input);
             minecraftCoords beforeCoords = myCoords;
             if (input == 'w') {
                 myCoords.changeX(1);   
@@ -135,7 +161,7 @@ class minecraftCoords {
                 goto end;
             }
             if (beforeCoords != myCoords) {
-                counter += 1;
+                moves += 1;
                 path.push_back(myCoords.getCoords());
             }
             for (auto bomb : bombs) {
@@ -146,14 +172,14 @@ class minecraftCoords {
         }
             if (myCoords.getCoords() == treasureCoords) {
                 cout << "Treasure found, you win!" << endl;
-                score = counter / startingDistance;
-                cout << "Score: " << score << endl;
+                cout << "Moves: " << moves << " (shortest possible: " << shortestPath << ")" << endl;
+                cout << "Efficiency: " << fixed << setprecision(1) << (100.0 * shortestPath / moves) << "%" << endl;
                 goto end;
             }
             cout << "Thermometer: ";
             double d = myCoords.distanceTo(treasureCoords);
             if (d >= 86){
-                cout << "freezing effing cold" << endl;
+                cout << "absolutely freezing" << endl;
             }
             else if (d >= 75 && d <= 86) {
                 cout << "iceberg" << endl;
@@ -183,7 +209,7 @@ class minecraftCoords {
                 cout << "FLAMING HOT" << endl;
             }
             else if (d >= 1 && d <= 3) {
-                cout << "SUPER EFFING HOT" << endl;
+                cout << "SCORCHING" << endl;
                 cout << "Distance: " << myCoords.distanceTo(treasureCoords) << endl;
             }
         }
@@ -193,7 +219,11 @@ class minecraftCoords {
             outFile << p.first << " " << p.second.first << " " << p.second.second << endl;
         }
         outFile.close();
+#ifdef _WIN32
         system("python visual.py");
+#else
+        system("python3 visual.py");
+#endif
     };
 };
 
@@ -207,10 +237,11 @@ int main() {
     cout << "MOVEMENT:\n";
     cout << " 'W' increases x value\n";
     cout << " 'S' decreases x value\n"; 
-    cout << " 'S' decreases z value\n";
+    cout << " 'A' decreases z value\n";
     cout << " 'D' increases z value\n";
     cout << " '-' increases y value\n";
     cout << " 'C' decreases y value\n";
+    cout << " 'X' quits\n";
     cout << "Enter your moves individually or combined!\nGO!\n";
     myCoords.startGame();
     return 0;
