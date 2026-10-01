@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <string>
 
 namespace {
@@ -23,8 +24,12 @@ void saveReplay(const World& world, const std::vector<Vec3>& path) {
 
 void showReplay() {
 #ifdef _WIN32
-    std::system("python visual.py");
+    const char* command = "python visual.py";
 #else
-    std::system("python3 visual.py");
+    const char* command = "python3 visual.py";
 #endif
+    if (std::system(command) != 0) {
+        std::cerr << "Couldn't open the replay. Make sure Python 3 and matplotlib are installed\n"
+                  << "(pip3 install -r requirements.txt) and run the game from the project folder.\n";
+    }
 }
