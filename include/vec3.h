@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <ostream>
 
 // A point (or direction) on the game grid. y is the vertical axis.
 struct Vec3 {
@@ -21,6 +22,10 @@ inline bool operator!=(const Vec3& a, const Vec3& b) {
 
 inline Vec3 operator+(const Vec3& a, const Vec3& b) {
     return {a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
+inline std::ostream& operator<<(std::ostream& out, const Vec3& v) {
+    return out << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 }
 
 // Straight-line distance, used for the thermometer.
