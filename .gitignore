@@ -1,0 +1,18 @@
+# build output
+/px
+*.exe
+*.ilk
+*.obj
+*.o
+*.pdb
+build/
+
+# files written by each game for the replay
+bombs.txt
+treasure.txt
+path_data.txt
+
+# editor / OS
+.vscode/
+.DS_Store
+__pycache__/
